@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/login.css">
+  </head>
+  <body>
+    <div class="login-wrapper">
+      <div class="login-form">
+        <input name="name" id="username" type="text" class="login-input mb20" placeholder="请输入用户名：admin" />
+        <br/>
+        <input name="password" id="password" type="password" class="login-input mb20" placeholder="请输入密码：123456" />
+        <br/>
+        <button id="btn" class="btn-primary">{{btnName}}</button>
+      </div>
+    </div>
+  </body>
+  <script>
+    window.onload = function() {
+      var loginBtn = document.getElementById('btn');
+      loginBtn.onclick = login;
+    }
+    
+    function login() {
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+      
+      if (username && password) {
+        fetch('http://127.0.0.1:3000/api/user/login', {
+          method: 'post',  
+          headers: {  
+            "Content-type": "application/json; charset=UTF-8",
+          },  
+          body: JSON.stringify({name: window.btoa(username), password: window.btoa(password)}),
+        }).then(res => {
+          var token = res.headers.get('Authorization')
+          localStorage.setItem('token', token);
+          if (!res.ok) {
+            return;
+          }
+          return res.json();
+        }).then((res) => {
+          if (res && res.status === 0) {
+            window.location.href = '/ucenter';
+          } else {
+            document.getElementById('error').innerHTML = '请求失败，请重试' || res.msg
+          }
+        });
+      }
+    }
+  </script>
+  </html>
